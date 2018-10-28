@@ -16,11 +16,13 @@ public abstract class Enemy : MonoBehaviour {
     [SerializeField] protected AudioClip hitSoundEffect;
     [SerializeField] protected GameObject hiteffect;
     [SerializeField] protected AudioClip[] primaryWeaponSounds;
+    [SerializeField] protected AudioClip thrusterSound;
     protected bool primaryWeaponCoolingDown;
     protected DateTime primaryWeaponCoolDownTime;
     protected int enemyWorth;
     protected GameObject spaceWarsUI;
     protected GameObject instantiatedThruster;
+    protected AudioSource thrusterNoise;
 
 
     private void Awake()
