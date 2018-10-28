@@ -11,6 +11,7 @@ public abstract class Enemy : MonoBehaviour {
     bool changedWaypoint = false;
     public int health { get; set; }
     protected float weaponCoolDown;
+    [SerializeField] protected GameObject thruster;
     [SerializeField] protected GameObject primaryWeapon;
     [SerializeField] protected AudioClip hitSoundEffect;
     [SerializeField] protected GameObject hiteffect;
@@ -19,6 +20,7 @@ public abstract class Enemy : MonoBehaviour {
     protected DateTime primaryWeaponCoolDownTime;
     protected int enemyWorth;
     protected GameObject spaceWarsUI;
+    protected GameObject instantiatedThruster;
 
 
     private void Awake()
@@ -29,11 +31,16 @@ public abstract class Enemy : MonoBehaviour {
 
     private void Start()
     {
-        
+    }
+
+    private void OnDestroy()
+    {
+        Destroy(instantiatedThruster);
     }
 
     protected void init() 
     {
+        instantiateThruster();
         spaceWarsUI = GameObject.FindGameObjectWithTag("space_wars_ui");
     }
 
@@ -79,8 +86,21 @@ public abstract class Enemy : MonoBehaviour {
         }
     }
 
+    protected void instantiateThruster()
+    {
+        this.instantiatedThruster = Instantiate(thruster,new Vector2(gameObject.transform.position.x,
+            gameObject.transform.position.y+0.8f),
+            gameObject.transform.rotation);
+    }
 
-    protected void firePrimaryWeapon(GameObject PrimaryWeapon)
+    protected void updateThruster()
+    {
+        this.instantiatedThruster.transform.position = new Vector2(gameObject.transform.position.x,
+            gameObject.transform.position.y + 0.8f);
+    }
+
+
+    protected virtual void firePrimaryWeapon(GameObject PrimaryWeapon)
     {
         if (!primaryWeaponCoolingDown)
         {
@@ -93,7 +113,7 @@ public abstract class Enemy : MonoBehaviour {
                 firedWeapon.AddComponent<Rigidbody2D>().velocity = new Vector3(0, -10);
                 firedWeapon.AddComponent<PolygonCollider2D>().isTrigger = true;
                 primaryWeaponCoolingDown = true;
-                primaryWeaponCoolDownTime = DateTime.Now.AddMilliseconds(weaponCoolDown*1000);
+                primaryWeaponCoolDownTime = DateTime.Now.AddMilliseconds(weaponCoolDown*1000*UnityEngine.Random.RandomRange(0.5f,1f));
             }
         }
     }
@@ -104,6 +124,7 @@ public abstract class Enemy : MonoBehaviour {
         calculateCoolDowns();
         firePrimaryWeapon(primaryWeapon);
         checkHealth();
+        updateThruster();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

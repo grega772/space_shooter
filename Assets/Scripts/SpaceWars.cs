@@ -11,6 +11,8 @@ public class SpaceWars : MonoBehaviour {
     [SerializeField] GameObject player;
     [SerializeField] GameObject[] upgrades;
     [SerializeField] GameObject[] superUpgrades;
+    [SerializeField] GameObject[] enemyPilots;
+    protected GameObject SpaceWarsUI;
     public int playerLives;
     protected bool isRespawn = false;
     protected DateTime respawnTimer;
@@ -23,7 +25,8 @@ public class SpaceWars : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         this.playerLives = 3;
-	}
+        SpaceWarsUI = GameObject.FindGameObjectWithTag("space_wars_ui");
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -39,6 +42,7 @@ public class SpaceWars : MonoBehaviour {
             {
                 Instantiate(player,new Vector3(0,-4,-1),transform.rotation);
                 isRespawn = false;
+                SpaceWarsUI.GetComponent<UIElements>().setHealthText(Constants.PLAYER_HEALTH);
             }
         }
     }
@@ -84,6 +88,9 @@ public class SpaceWars : MonoBehaviour {
         this.createDebris(location, rotation);
         expl.GetComponent<AudioSource>().PlayOneShot(expl.GetComponent<AudioClip>());
         Destroy(expl, 1f);
+        var pilot = Instantiate(enemyPilots[0], location, transform.rotation);
+        pilot.AddComponent<Rigidbody2D>().velocity = 
+            new Vector2(UnityEngine.Random.RandomRange(-5,5), UnityEngine.Random.RandomRange(-5, 5));
     }
 
 
@@ -135,13 +142,14 @@ public class SpaceWars : MonoBehaviour {
         {
             GameObject upgrade = null;
             Vector3 spawnLocation = location.position;
-            if (randNum < 4)
+            if (randNum < 3)
             {
-                var randChoice = UnityEngine.Random.Range(1,upgrades.Length);
+                var randChoice = UnityEngine.Random.Range(0,upgrades.Length);
+                //var randChoice = 0;
                 upgrade = Instantiate(upgrades[randChoice],spawnLocation,transform.rotation);
                 upgrade.AddComponent<Rigidbody2D>().velocity = new Vector3(0, -3);
             }
-            else if (randNum == 4)
+            else if (randNum == 3)
             {
             }
             

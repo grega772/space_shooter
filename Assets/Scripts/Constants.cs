@@ -15,6 +15,7 @@ public class Constants : MonoBehaviour {
     public readonly static int BASIC_WEAPON_DAMAGE = 10;
     public readonly static int BASIC_ENEMY_WORTH = 10;
     public readonly static int SCOUT_ENEMY_WORTH = 20;
+    public readonly static int PLAYER_HEALTH = 100;
 
     public static string EXTRA_SHOT = "EXTRA_SHOT";
     public readonly static string EXTRA_HEALTH = "EXTRA_HEALTH";
