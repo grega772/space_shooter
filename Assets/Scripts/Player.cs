@@ -11,6 +11,7 @@ public class Player : MonoBehaviour {
     [SerializeField] protected AudioClip hitSoundEffect;
     [SerializeField] protected GameObject hiteffect;
     [SerializeField] protected GameObject thruster;
+    [SerializeField] protected GameObject pickupEffect;
     protected Vector3 dodgeDestination;
     protected List<String> superMoves = new List<String>();
     protected GameObject[] forwardThrusters;
@@ -47,7 +48,7 @@ public class Player : MonoBehaviour {
 	void Start () {
         setUpMoveBoundaries();
         playerAudio = gameObject.GetComponent<AudioSource>();
-        health = 100;
+        health = 10000;
         SpaceWarsUI = GameObject.FindGameObjectWithTag("space_wars_ui");
         instantiateThrusters();
 	}
@@ -414,7 +415,7 @@ public class Player : MonoBehaviour {
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!justSpawned&&!dodging)
+        if (!justSpawned && !dodging)
         {
             if (collision.gameObject.tag == "enemy_weapon")
             {
@@ -427,25 +428,29 @@ public class Player : MonoBehaviour {
                 Destroy(collisionObject);
                 notifyPlayerDamage();
             }
-            else if(collision.gameObject.tag == "power_up")
-            {
-                var powerUpType = collision.gameObject.GetComponent<Powerup>().powerupName;
-
-                if (powerUpType.Equals(Constants.EXTRA_HEALTH))
-                {
-                    this.changeHealth(Constants.HEALTH_PICKUP_VALUE);
-                }
-                else if (powerUpType.Equals(Constants.MEGA_HEALTH))
-                {
-                    this.changeHealth(Constants.MEGA_HEALTH_PICKUP_VALUE);
-                }
-                else if (powerUpType.Equals(Constants.EXTRA_SHOT))
-                {
-                    this.increaseProjectiles();
-                }
-                Destroy(collision.gameObject);
-            }
         }
+        if (collision.gameObject.tag == "power_up")
+        {
+            var powerUpType = collision.gameObject.GetComponent<Powerup>().powerupName;
+
+            if (powerUpType.Equals(Constants.EXTRA_HEALTH))
+            {
+                this.changeHealth(Constants.HEALTH_PICKUP_VALUE);
+            }
+            else if (powerUpType.Equals(Constants.MEGA_HEALTH))
+            {
+                this.changeHealth(Constants.MEGA_HEALTH_PICKUP_VALUE);
+            }
+            else if (powerUpType.Equals(Constants.EXTRA_SHOT))
+            {
+                this.increaseProjectiles();
+            }
+            Destroy(collision.gameObject);
+            var effect = Instantiate(pickupEffect,
+                new Vector3(transform.position.x, transform.position.y), transform.rotation);
+            Destroy(effect, 1f);
+        }
+        
         if (collision.gameObject.tag=="basic_enemy"&&dodging)
         {
             collision.gameObject.GetComponent<Enemy>().health -= 100;
@@ -455,6 +460,11 @@ public class Player : MonoBehaviour {
             this.changeHealth(-40);
             collision.gameObject.GetComponent<Enemy>().health -= 100;
             notifyPlayerDamage();
+        }
+
+        if (collision.gameObject.tag == "heavy_turret"&&dodging)
+        {
+            collision.gameObject.GetComponent<Turret>().health -= 100;
         }
         
     }

@@ -5,17 +5,12 @@ using UnityEngine;
 
 public class Level : MonoBehaviour {
 
-     [SerializeField] public WaveConfiguration[] waves;
+    [SerializeField] public WaveConfiguration[] waves;
     private int enemyHealth;
-    private int waveIndex;
-    bool inWaveDelay = false;
-    DateTime waveSpawnDelay;
-
-
-    private void Start()
-    {
-        waveIndex = 0;
-    }
+    private bool inWaveDelay = false;
+    private DateTime waveSpawnDelay;
+    private WaveConfiguration currentWave;
+    private int previousWave;
 
     private void Update()
     {
@@ -27,17 +22,20 @@ public class Level : MonoBehaviour {
     {
         if (!inWaveDelay)
         {
-            waves[waveIndex].Init();
-            waveSpawnDelay = DateTime.Now.AddSeconds(waves[waveIndex].getTimeBetweenWaves());
-            inWaveDelay = true;
-            if (++waveIndex>=waves.Length)
+            int randWave;
+            do
             {
-                waveIndex = 0;
-            }
+                randWave = UnityEngine.Random.Range(0, waves.Length);
+            } while (randWave == previousWave);
+            waves[randWave].Init();
+            waveSpawnDelay = DateTime.Now.AddSeconds(UnityEngine.Random.Range(5,10));
+            inWaveDelay = true;
+            currentWave = waves[randWave];
+            previousWave = randWave;
         }
         else
         {
-            if (DateTime.Now>waveSpawnDelay)
+            if (DateTime.Now>waveSpawnDelay || currentWave.getRemainingEnemies() < 2)
             {
                 inWaveDelay = false;
             }

@@ -11,8 +11,11 @@ public class WaveConfiguration : ScriptableObject {
     [SerializeField] Transform pathPrefab;
     [SerializeField] int timeBetweenWaves;
     private List<Transform> waypoints;
+    private List<GameObject> currentEnemies;
 
 	public void Init () {
+
+        currentEnemies = new List<GameObject>();
 
         waypoints = new List<Transform>();
 
@@ -29,8 +32,20 @@ public class WaveConfiguration : ScriptableObject {
                 startPos.y, Constants.Z_INDEX), enemy.transform.rotation);
             newEnemy.GetComponent<Enemy>().waypoints = waypoints;
             newEnemy.AddComponent<PolygonCollider2D>().isTrigger = true;
+            newEnemy.GetComponent<Enemy>().setWaveConfiguration(this);
+            currentEnemies.Add(newEnemy);
         }
 	}
+
+    public int getRemainingEnemies()
+    {
+        return this.currentEnemies.Count;
+    }
+
+    public void removeEnemyFromWave(GameObject enemy)
+    {
+        currentEnemies.Remove(enemy);
+    }
 
     public int getTimeBetweenWaves()
     {

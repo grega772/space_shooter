@@ -89,8 +89,19 @@ public class SpaceWars : MonoBehaviour {
         expl.GetComponent<AudioSource>().PlayOneShot(expl.GetComponent<AudioClip>());
         Destroy(expl, 1f);
         var pilot = Instantiate(enemyPilots[0], location, transform.rotation);
+        var pilotXVel = UnityEngine.Random.RandomRange(-5, 5);
+        var pilotYVel = UnityEngine.Random.RandomRange(-5, 5);
+        if (pilotXVel==0)
+        {
+            pilotXVel += 1;
+        }
+        if (pilotYVel==0)
+        {
+            pilotYVel += 1;
+        }
+
         pilot.AddComponent<Rigidbody2D>().velocity = 
-            new Vector2(UnityEngine.Random.RandomRange(-5,5), UnityEngine.Random.RandomRange(-5, 5));
+            new Vector2(pilotXVel, pilotYVel);
     }
 
 

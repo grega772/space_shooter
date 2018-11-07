@@ -5,7 +5,7 @@ using UnityEngine;
 
 public abstract class Enemy : MonoBehaviour {
 
-	public int waypointIndex { get; set; }
+    public int waypointIndex { get; set; }
     public float speed { get; set; }
     public List<Transform> waypoints { get; set; }
     bool changedWaypoint = false;
@@ -23,6 +23,7 @@ public abstract class Enemy : MonoBehaviour {
     protected GameObject spaceWarsUI;
     protected GameObject instantiatedThruster;
     protected AudioSource thrusterNoise;
+    protected WaveConfiguration creatorWave;
 
 
     private void Awake()
@@ -37,21 +38,31 @@ public abstract class Enemy : MonoBehaviour {
 
     private void OnDestroy()
     {
+        creatorWave.removeEnemyFromWave(gameObject);
         Destroy(instantiatedThruster);
     }
 
-    protected void init() 
+    protected void init()
     {
         instantiateThruster();
         spaceWarsUI = GameObject.FindGameObjectWithTag("space_wars_ui");
+    }
+
+    protected void moveToStationaryPosition(float craftSpeed)
+    {
+        if (Vector2.Distance(transform.position, waypoints[waypointIndex].position) > 0.1)
+        {
+            transform.position = Vector2.MoveTowards(gameObject.transform.position,
+                waypoints[waypointIndex].position, craftSpeed * Time.deltaTime);
+        }
     }
 
     protected void moveToWaypoint(float craftSpeed)
     {
 
         if (Vector2.Distance(transform.position, waypoints[waypointIndex].position) < 0.1)
-            {
-            if (!(waypointIndex==waypoints.Count-1))
+        {
+            if (!(waypointIndex == waypoints.Count - 1))
             {
                 ++waypointIndex;
             }
@@ -62,11 +73,11 @@ public abstract class Enemy : MonoBehaviour {
         }
         transform.position = Vector2.MoveTowards(gameObject.transform.position,
                 waypoints[waypointIndex].position, craftSpeed * Time.deltaTime);
-        }
+    }
 
     protected void checkHealth()
     {
-        if (health<=0)
+        if (health <= 0)
         {
             spaceWarsUI.GetComponent<UIElements>().setScoreText(this.enemyWorth);
             GameObject.FindGameObjectWithTag("space_wars").GetComponent<SpaceWars>()
@@ -90,15 +101,15 @@ public abstract class Enemy : MonoBehaviour {
 
     protected void instantiateThruster()
     {
-        this.instantiatedThruster = Instantiate(thruster,new Vector2(gameObject.transform.position.x,
-            gameObject.transform.position.y+0.8f),
+        this.instantiatedThruster = Instantiate(thruster, new Vector3(gameObject.transform.position.x,
+            gameObject.transform.position.y + 0.8f, 1),
             gameObject.transform.rotation);
     }
 
     protected void updateThruster()
     {
-        this.instantiatedThruster.transform.position = new Vector2(gameObject.transform.position.x,
-            gameObject.transform.position.y + 0.8f);
+        this.instantiatedThruster.transform.position = new Vector3(gameObject.transform.position.x,
+            gameObject.transform.position.y + 0.8f, 1);
     }
 
 
@@ -110,12 +121,12 @@ public abstract class Enemy : MonoBehaviour {
             {
 
                 gameObject.GetComponent<AudioSource>()
-                    .PlayOneShot(primaryWeaponSounds[UnityEngine.Random.Range(0,primaryWeaponSounds.Length)]);
+                    .PlayOneShot(primaryWeaponSounds[UnityEngine.Random.Range(0, primaryWeaponSounds.Length)]);
                 var firedWeapon = Instantiate(PrimaryWeapon, transform.position, transform.rotation);
                 firedWeapon.AddComponent<Rigidbody2D>().velocity = new Vector3(0, -10);
                 firedWeapon.AddComponent<PolygonCollider2D>().isTrigger = true;
                 primaryWeaponCoolingDown = true;
-                primaryWeaponCoolDownTime = DateTime.Now.AddMilliseconds(weaponCoolDown*1000*UnityEngine.Random.RandomRange(0.5f,1f));
+                primaryWeaponCoolDownTime = DateTime.Now.AddMilliseconds(weaponCoolDown * 1000 * UnityEngine.Random.RandomRange(0.5f, 1f));
             }
         }
     }
@@ -125,6 +136,13 @@ public abstract class Enemy : MonoBehaviour {
         moveToWaypoint(speed);
         calculateCoolDowns();
         firePrimaryWeapon(primaryWeapon);
+        checkHealth();
+        updateThruster();
+    }
+
+    protected void performHeavyEnemyFunctions()
+    {
+        moveToStationaryPosition(speed);
         checkHealth();
         updateThruster();
     }
@@ -141,6 +159,11 @@ public abstract class Enemy : MonoBehaviour {
             Destroy(collisionObject);
             health -= 25;
         }
+    }
+
+    public void setWaveConfiguration(WaveConfiguration waveConfiguration)
+    {
+        this.creatorWave = waveConfiguration;
     }
 
 }
