@@ -6,6 +6,9 @@ using UnityEngine;
 public abstract class Turret : MonoBehaviour {
 
     [SerializeField] protected GameObject projectile;
+    [SerializeField] protected AudioClip rotateStart;
+    [SerializeField] protected AudioClip rotate;
+    [SerializeField] protected AudioClip rotateEnd;
     protected float projectileSpeed;
     protected float rotationSpeed;
     [SerializeField] protected GameObject muzzleFlash;
@@ -14,6 +17,9 @@ public abstract class Turret : MonoBehaviour {
     private DateTime fireDelay = DateTime.Now;
     private int barrelIndex = 0;
     public int health;
+    private bool rotating;
+    private DateTime rotationSoundChange = DateTime.Now;
+    private float rotationSoundChangeDelay  = 100f;
 
     // Use this for initialization
 
@@ -21,6 +27,23 @@ public abstract class Turret : MonoBehaviour {
     {
         rotateToTrackPlayer();
         checkHealth();
+        checkToSeeIfRotating();
+    }
+
+    protected void checkToSeeIfRotating()
+    {
+        if (DateTime.Now > rotationSoundChange)
+        {
+            if (!rotating && GetComponent<AudioSource>().isPlaying)
+            {
+                GetComponent<AudioSource>().Pause();
+            }
+            else if (rotating && !GetComponent<AudioSource>().isPlaying)
+            {
+                GetComponent<AudioSource>().UnPause();
+            }
+            rotationSoundChange = DateTime.Now.AddMilliseconds(rotationSoundChangeDelay);
+        }
     }
 
     protected void attemptToFire()
@@ -68,6 +91,7 @@ public abstract class Turret : MonoBehaviour {
 
             if (Mathf.Abs(targetAngle - currentRotation) > this.rotationSpeed)
             {
+                rotating = true;
                 if (targetAngle < currentRotation)
                 {
                     currentRotation -= rotationSpeed;
@@ -77,8 +101,17 @@ public abstract class Turret : MonoBehaviour {
                     currentRotation += rotationSpeed;
                 }
             }
+            else
+            {
+                rotating = false;
+            }
             transform.rotation = Quaternion.Euler(0, 0, currentRotation);
         }
+        else
+        {
+            rotating = false;
+        }
+        
     }
 
     protected void checkHealth()

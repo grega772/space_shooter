@@ -6,6 +6,7 @@ using UnityEngine;
 public class Level : MonoBehaviour {
 
     [SerializeField] public WaveConfiguration[] waves;
+    [SerializeField] AudioClip scoutAlert;
     private int enemyHealth;
     private bool inWaveDelay = false;
     private DateTime waveSpawnDelay;

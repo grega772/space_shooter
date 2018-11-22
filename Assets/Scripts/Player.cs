@@ -48,7 +48,7 @@ public class Player : MonoBehaviour {
 	void Start () {
         setUpMoveBoundaries();
         playerAudio = gameObject.GetComponent<AudioSource>();
-        health = 10000;
+        health = 100;
         SpaceWarsUI = GameObject.FindGameObjectWithTag("space_wars_ui");
         instantiateThrusters();
 	}
@@ -451,14 +451,22 @@ public class Player : MonoBehaviour {
             Destroy(effect, 1f);
         }
         
-        if (collision.gameObject.tag=="basic_enemy"&&dodging)
+        if ((collision.gameObject.tag=="basic_enemy"
+            ||collision.gameObject.tag=="heavy_enemy"
+            || collision.gameObject.tag == "scout_enemy")
+            &&dodging)
         {
             collision.gameObject.GetComponent<Enemy>().health -= 100;
+            collision.gameObject.GetComponent<Enemy>().notifyEnemyDamage();
         }
-        else if (collision.gameObject.tag == "basic_enemy" && !dodging)
+        else if ((collision.gameObject.tag == "basic_enemy"
+            ||collision.gameObject.tag=="heavy_enemy"
+            || collision.gameObject.tag == "scout_enemy")
+            && !dodging)
         {
             this.changeHealth(-40);
             collision.gameObject.GetComponent<Enemy>().health -= 100;
+            collision.gameObject.GetComponent<Enemy>().notifyEnemyDamage();
             notifyPlayerDamage();
         }
 

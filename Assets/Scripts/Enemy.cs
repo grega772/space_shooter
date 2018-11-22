@@ -17,6 +17,7 @@ public abstract class Enemy : MonoBehaviour {
     [SerializeField] protected GameObject hiteffect;
     [SerializeField] protected AudioClip[] primaryWeaponSounds;
     [SerializeField] protected AudioClip thrusterSound;
+    [SerializeField] protected AudioClip spawnWarning;
     protected bool primaryWeaponCoolingDown;
     protected DateTime primaryWeaponCoolDownTime;
     protected int enemyWorth;
@@ -24,6 +25,8 @@ public abstract class Enemy : MonoBehaviour {
     protected GameObject instantiatedThruster;
     protected AudioSource thrusterNoise;
     protected WaveConfiguration creatorWave;
+    protected bool colorChanged;
+    protected DateTime colorChangeCooldown = DateTime.Now;
 
 
     private void Awake()
@@ -48,13 +51,25 @@ public abstract class Enemy : MonoBehaviour {
         spaceWarsUI = GameObject.FindGameObjectWithTag("space_wars_ui");
     }
 
-    protected void moveToStationaryPosition(float craftSpeed)
+    protected void moveToStationaryPositionThenCharge()
     {
-        if (Vector2.Distance(transform.position, waypoints[waypointIndex].position) > 0.1)
+        chargePlayer();
+    }
+
+    protected void chargePlayer()
+    {
+        if (GameObject.FindGameObjectWithTag("player_ship") != null)
         {
-            transform.position = Vector2.MoveTowards(gameObject.transform.position,
-                waypoints[waypointIndex].position, craftSpeed * Time.deltaTime);
+            transform.position = Vector2.MoveTowards(transform.position,
+                GameObject.FindGameObjectWithTag("player_ship").transform.position,
+                speed * Time.deltaTime);
         }
+    }
+
+    protected void charge()
+    {
+        transform.position = new Vector2(transform.position.x,
+            transform.position.y - (speed * Time.deltaTime));
     }
 
     protected void moveToWaypoint(float craftSpeed)
@@ -75,7 +90,7 @@ public abstract class Enemy : MonoBehaviour {
                 waypoints[waypointIndex].position, craftSpeed * Time.deltaTime);
     }
 
-    protected void checkHealth()
+    protected virtual void checkHealth()
     {
         if (health <= 0)
         {
@@ -131,6 +146,14 @@ public abstract class Enemy : MonoBehaviour {
         }
     }
 
+    protected void performScoutEnemyFunctions()
+    {
+        checkHealth();
+        updateThruster();
+        checkColorChanged();
+        charge();
+    }
+
     protected void performEnemyBasicFunctions()
     {
         moveToWaypoint(speed);
@@ -142,12 +165,13 @@ public abstract class Enemy : MonoBehaviour {
 
     protected void performHeavyEnemyFunctions()
     {
-        moveToStationaryPosition(speed);
+        moveToStationaryPositionThenCharge();
         checkHealth();
         updateThruster();
+        checkColorChanged();
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    protected virtual void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag==Constants.PLAYER_WEAPON_TAG)
         {
@@ -164,6 +188,25 @@ public abstract class Enemy : MonoBehaviour {
     public void setWaveConfiguration(WaveConfiguration waveConfiguration)
     {
         this.creatorWave = waveConfiguration;
+    }
+
+    public void notifyEnemyDamage()
+    {
+        colorChanged = true;
+        colorChangeCooldown = DateTime.Now.AddMilliseconds(50);
+        this.gameObject.GetComponent<SpriteRenderer>().color = Color.red;
+    }
+
+    protected void checkColorChanged()
+    {
+        if (colorChanged)
+        {
+            if (DateTime.Now > colorChangeCooldown)
+            {
+                gameObject.GetComponent<SpriteRenderer>().color = UnityEngine.Color.white;
+                colorChanged = false;
+            }
+        }
     }
 
 }

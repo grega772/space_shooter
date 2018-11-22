@@ -10,6 +10,8 @@ public class WaveConfiguration : ScriptableObject {
     [SerializeField] int distApart;
     [SerializeField] Transform pathPrefab;
     [SerializeField] int timeBetweenWaves;
+    [SerializeField] public WaveConfiguration[] waves;
+    [SerializeField] AudioClip spawnWarning;
     private List<Transform> waypoints;
     private List<GameObject> currentEnemies;
 
@@ -25,6 +27,18 @@ public class WaveConfiguration : ScriptableObject {
         }
 
         var startPos = waypoints[0].position;
+
+        if (enemy.tag.Equals("scout_enemy"))
+        {
+            startPos.x = Random.RandomRange(-5,3);
+        }
+        else if (enemy.tag.Equals("heavy_enemy"))
+        {
+            if (Random.value > 0.5)
+            {
+                startPos.x = -10;
+            }
+        }
 
         for (int i = 0; i<enemyCount;i++)
         {
