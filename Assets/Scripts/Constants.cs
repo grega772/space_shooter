@@ -15,7 +15,13 @@ public class Constants : MonoBehaviour {
     public readonly static int BASIC_WEAPON_DAMAGE = 10;
     public readonly static int BASIC_ENEMY_WORTH = 10;
     public readonly static int SCOUT_ENEMY_WORTH = 20;
-    public readonly static int PLAYER_HEALTH = 100;
+    public readonly static int PLAYER_HEALTH = 10000;
+
+    public readonly static int HITLER_HEALTH = 500;
+    public readonly static float HITLER_SPEED = 2f;
+    public readonly static int HITLER_WORTH = 5000;
+    public readonly static int HITLER_EYE_LASER_DAMAGE = 15;
+
 
     public readonly static int HEAVY_ENEMY_HEALTH = 500;
     public readonly static int HEAVY_ENEMY_WORTH = 100;
@@ -35,5 +41,8 @@ public class Constants : MonoBehaviour {
     public readonly static float HEAVY_PROJECTILE_SPEED = 10;
     public readonly static int HEAVY_TURRET_DAMAGE = 20;
     public readonly static int HEAVY_TURRET_HEATH = 100;
+
+    public readonly static int BOSS_SPAWN_DELAY_SECONDS = 10;
+    public readonly static int WARNING_DURATION_SECONDS = 15;
 }
 

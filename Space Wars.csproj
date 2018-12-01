@@ -85,6 +85,7 @@
     <Compile Include="Assets\Scripts\Explosion.cs" />
     <Compile Include="Assets\Scripts\HeavyEnemy.cs" />
     <Compile Include="Assets\Scripts\HeavyTurret.cs" />
+    <Compile Include="Assets\Scripts\Hitler.cs" />
     <Compile Include="Assets\Scripts\Laser.cs" />
     <Compile Include="Assets\Scripts\LaserShredder.cs" />
     <Compile Include="Assets\Scripts\Level.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="Assets\Scripts\UIElements.cs" />
     <Compile Include="Assets\Scripts\WaveConfiguration.cs" />
     <Compile Include="Assets\Scripts\heavy_laser.cs" />
+    <Compile Include="Assets\Scripts\hitlerLaser.cs" />
     <Compile Include="Assets\Scripts\laserDirection.cs" />
   </ItemGroup>
   <ItemGroup>

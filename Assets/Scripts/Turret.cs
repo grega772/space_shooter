@@ -9,6 +9,7 @@ public abstract class Turret : MonoBehaviour {
     [SerializeField] protected AudioClip rotateStart;
     [SerializeField] protected AudioClip rotate;
     [SerializeField] protected AudioClip rotateEnd;
+    [SerializeField] protected AudioClip[] turretFireSounds;
     protected float projectileSpeed;
     protected float rotationSpeed;
     [SerializeField] protected GameObject muzzleFlash;
@@ -27,7 +28,7 @@ public abstract class Turret : MonoBehaviour {
     {
         rotateToTrackPlayer();
         checkHealth();
-        checkToSeeIfRotating();
+        //checkToSeeIfRotating();
     }
 
     protected void checkToSeeIfRotating()
@@ -46,9 +47,10 @@ public abstract class Turret : MonoBehaviour {
         }
     }
 
-    protected void attemptToFire()
+    protected void attemptToFire(Vector3 playerPos)
     {
-        if (!inFireDelay)
+        if (!inFireDelay
+            &&Vector2.Distance(transform.position,playerPos)<8)
         {
             var laser = Instantiate(projectile,
                 barrelList[barrelIndex].transform.position,
@@ -56,11 +58,14 @@ public abstract class Turret : MonoBehaviour {
             var flash = Instantiate(muzzleFlash,
                 barrelList[barrelIndex].transform.position,
                 transform.rotation);
+            var barrelAudioSource = barrelList[barrelIndex].GetComponent<AudioSource>();
+            barrelAudioSource
+                .PlayOneShot(turretFireSounds[UnityEngine.Random.Range(0,turretFireSounds.Length)]);
             flash.transform.rotation = transform.rotation;
             Destroy(flash,0.2f);
             laser.transform.rotation = transform.rotation;
             laser.AddComponent<Rigidbody2D>();
-            fireDelay = DateTime.Now.AddMilliseconds(200);
+            fireDelay = DateTime.Now.AddMilliseconds(100);
             inFireDelay = true;
             barrelIndex = ++barrelIndex >= barrelList.Length ? 0 : barrelIndex;
         }
@@ -86,7 +91,7 @@ public abstract class Turret : MonoBehaviour {
 
             if (Mathf.Abs(currentRotation - targetAngle) < 10)
             {
-                attemptToFire();
+                attemptToFire(playerPos);
             }
 
             if (Mathf.Abs(targetAngle - currentRotation) > this.rotationSpeed)

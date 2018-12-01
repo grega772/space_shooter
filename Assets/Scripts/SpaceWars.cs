@@ -12,10 +12,12 @@ public class SpaceWars : MonoBehaviour {
     [SerializeField] GameObject[] upgrades;
     [SerializeField] GameObject[] superUpgrades;
     [SerializeField] GameObject[] enemyPilots;
+    [SerializeField] GameObject bigExplosion;
     protected GameObject SpaceWarsUI;
     public int playerLives;
     protected bool isRespawn = false;
     protected DateTime respawnTimer;
+
 
     bool switchedImage = false;
     bool twoAtOnce = false;
@@ -166,4 +168,20 @@ public class SpaceWars : MonoBehaviour {
             
         }
     }
+
+    public void createExplosionTwo(Vector3 location, Quaternion rotation)
+    {
+            var expl = Instantiate(explosionOne, location, rotation);
+            this.createDebris(location, rotation);
+            expl.GetComponent<AudioSource>().PlayOneShot(expl.GetComponent<AudioClip>());
+            Destroy(expl, 1f);
+    }
+
+    public void createExplosionThree(Vector3 location, Quaternion rotation)
+    {
+        var expl = Instantiate(bigExplosion, location, rotation);
+        expl.GetComponent<AudioSource>().PlayOneShot(expl.GetComponent<AudioClip>());
+        Destroy(expl, 1f);
+    }
+
 }

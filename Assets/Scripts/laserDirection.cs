@@ -18,4 +18,9 @@ public class laserDirection : MonoBehaviour {
     {
         transform.position += transform.up * Time.deltaTime * laserSpeed;
     }
+
+    public void setLaserSpeed(int speed)
+    {
+        this.laserSpeed = speed;
+    }
 }

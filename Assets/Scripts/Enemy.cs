@@ -41,7 +41,10 @@ public abstract class Enemy : MonoBehaviour {
 
     private void OnDestroy()
     {
-        creatorWave.removeEnemyFromWave(gameObject);
+        if (creatorWave != null)
+        {
+            creatorWave.removeEnemyFromWave(gameObject);
+        }
         Destroy(instantiatedThruster);
     }
 
@@ -68,8 +71,8 @@ public abstract class Enemy : MonoBehaviour {
 
     protected void charge()
     {
-        transform.position = new Vector2(transform.position.x,
-            transform.position.y - (speed * Time.deltaTime));
+        transform.position = new Vector3(transform.position.x,
+            transform.position.y - (speed * Time.deltaTime), -5f);
     }
 
     protected void moveToWaypoint(float craftSpeed)
@@ -95,13 +98,21 @@ public abstract class Enemy : MonoBehaviour {
         if (health <= 0)
         {
             spaceWarsUI.GetComponent<UIElements>().setScoreText(this.enemyWorth);
-            GameObject.FindGameObjectWithTag("space_wars").GetComponent<SpaceWars>()
-                    .createExplosionOne(new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.rotation);
-            GameObject.FindGameObjectWithTag("space_wars").GetComponent<SpaceWars>().spawnPickup(transform);
-            Destroy(this.gameObject);
+            if (gameObject.tag.Equals("hitler_head"))
+            {
+                gameObject.GetComponent<Hitler>().setHitlerIsDead(true);
+                Level.greatSuccess();
+                Destroy(this.gameObject,5f);
+            }
+            else
+            {
+                GameObject.FindGameObjectWithTag("space_wars").GetComponent<SpaceWars>()
+                   .createExplosionOne(new Vector3(transform.position.x, transform.position.y, transform.position.z), transform.rotation);
+                GameObject.FindGameObjectWithTag("space_wars").GetComponent<SpaceWars>().spawnPickup(transform);
+                Destroy(this.gameObject);
+            }
         }
     }
-
 
     protected void calculateCoolDowns()
     {
@@ -171,9 +182,19 @@ public abstract class Enemy : MonoBehaviour {
         checkColorChanged();
     }
 
+    protected void performBossBasicFunctions()
+    {
+        checkHealth();
+    }
+
     protected virtual void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag==Constants.PLAYER_WEAPON_TAG)
+        if (gameObject.tag.Equals("hitler_head")
+            && GetComponent<Hitler>().movingTowardCenter)
+        {
+
+        }
+        else if (collision.gameObject.tag==Constants.PLAYER_WEAPON_TAG)
         {
             var collisionObject = collision.gameObject;
 

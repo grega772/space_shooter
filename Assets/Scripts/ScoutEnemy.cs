@@ -17,12 +17,16 @@ public class ScoutEnemy : Enemy {
 
     void Start () {
         Destroy(gameObject, 3f);
-        GameObject.FindGameObjectWithTag("game_level")
-            .GetComponent<AudioSource>().PlayOneShot(spawnWarning);
+        instantiatedThruster.transform.position = new Vector3(instantiatedThruster.transform.position.x,
+            instantiatedThruster.transform.position.y,-2f);
+        /*GameObject.FindGameObjectWithTag("game_level")
+            .GetComponent<AudioSource>().PlayOneShot(spawnWarning);*/
     }
 
     // Update is called once per frame
     void Update () {
         performScoutEnemyFunctions();
+        instantiatedThruster.transform.position = new Vector3(instantiatedThruster.transform.position.x,
+            instantiatedThruster.transform.position.y, -2f);
     }
 }

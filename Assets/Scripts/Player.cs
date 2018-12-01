@@ -48,7 +48,7 @@ public class Player : MonoBehaviour {
 	void Start () {
         setUpMoveBoundaries();
         playerAudio = gameObject.GetComponent<AudioSource>();
-        health = 100;
+        health = Constants.PLAYER_HEALTH;
         SpaceWarsUI = GameObject.FindGameObjectWithTag("space_wars_ui");
         instantiateThrusters();
 	}
