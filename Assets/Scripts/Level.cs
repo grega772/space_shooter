@@ -10,27 +10,38 @@ public class Level : MonoBehaviour {
     [SerializeField] AudioClip scoutAlert;
     [SerializeField] AudioClip warningSound;
     [SerializeField] GameObject finalBoss;
+    [SerializeField] AudioClip finalBattleMusic;
+    [SerializeField] AudioClip victoryMusic;
     private int enemyHealth;
     private bool inWaveDelay = false;
     private DateTime waveSpawnDelay;
     private WaveConfiguration currentWave;
     private int previousWave;
     private DateTime gameStartTime;
-    private Text warningText;
+    private Image warningImage;
+    private Image victoryImage;
     private bool textIsClear = true;
-    private DateTime warningTextFlashDelay = DateTime.Now;
+    private DateTime warningImageFlashDelay = DateTime.Now;
     private DateTime startTime = DateTime.Now;
+    private int victoryMessageDelayMilliseconds = 7000;
     private Boolean playWarningSound = false;
     private bool soundPlayed = false;
     private static bool greatSuccessCalled = false;
     private bool bossSpawned = false;
+    private AudioSource musicPlayer;
+    private bool musicChanged = false;
+    private Button quitButton;
     
 
     private void Start()
     {
         this.gameStartTime = DateTime.Now;
-        warningText = GameObject.FindGameObjectWithTag("warning_text").GetComponent<Text>();
-        warningText.color = UnityEngine.Color.clear;
+        quitButton = GameObject.FindGameObjectWithTag("quit_button").GetComponent<Button>();
+        warningImage = GameObject.FindGameObjectWithTag("warning_text").GetComponent<Image>();
+        victoryImage = GameObject.FindGameObjectWithTag("victory_message").GetComponent<Image>();
+        warningImage.enabled = false;
+        victoryImage.enabled = false;
+        quitButton.enabled = false;
     }
 
     private void tryToPlayWarningSound()
@@ -60,6 +71,15 @@ public class Level : MonoBehaviour {
     {
         doCurrentPhase();
         tryToPlayWarningSound();
+        tryToDisplayVictoryMessage();
+    }
+
+    private void tryToDisplayVictoryMessage()
+    {
+        if (Hitler.hitlerIsDead && DateTime.Now > DateTime.Now.AddMilliseconds(victoryMessageDelayMilliseconds))
+        {
+            victoryImage.enabled = true;
+        }
     }
 
     private void doCurrentPhase()
@@ -83,17 +103,19 @@ public class Level : MonoBehaviour {
     private void displayWarningText()
     {
         playWarningSound = true;
-        if (DateTime.Now > warningTextFlashDelay)
+        if (DateTime.Now > warningImageFlashDelay)
         {
-            if (warningText.color.Equals(Color.clear))
+            if (!warningImage.enabled)
             {
-                warningText.color = Color.red;
+                warningImage.enabled = true;
+                quitButton.enabled = true;
             }
             else
             {
-                warningText.color = Color.clear;
+                warningImage.enabled = false;
+                quitButton.enabled = false;
             }
-            warningTextFlashDelay = DateTime.Now.AddMilliseconds(700);
+            warningImageFlashDelay = DateTime.Now.AddMilliseconds(700);
         }
     }
 
@@ -101,10 +123,24 @@ public class Level : MonoBehaviour {
     {
         if (!bossSpawned)
         {
-            Vector2 bossStartPos = new Vector2(0, 10);
+            musicPlayer = gameObject
+                .AddComponent<AudioSource>();
+            musicPlayer.PlayOneShot(finalBattleMusic);
+            Vector3 bossStartPos = new Vector3(0, 10, 5);
             Instantiate(finalBoss, bossStartPos, transform.rotation);
+            bossSpawned = true;
         }
-        bossSpawned = true;
+
+        if (Hitler.hitlerIsDead && !musicChanged)
+        {
+            musicPlayer.Stop();
+            musicPlayer = gameObject
+               .AddComponent<AudioSource>();
+            musicPlayer.clip = victoryMusic;
+            musicPlayer.PlayDelayed(6f);
+            musicChanged = true;
+        }
+        
     }
 
     private void spawnWaves()

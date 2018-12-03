@@ -27,6 +27,6 @@ public class ScoutEnemy : Enemy {
     void Update () {
         performScoutEnemyFunctions();
         instantiatedThruster.transform.position = new Vector3(instantiatedThruster.transform.position.x,
-            instantiatedThruster.transform.position.y, -2f);
+            instantiatedThruster.transform.position.y, -4f);
     }
 }

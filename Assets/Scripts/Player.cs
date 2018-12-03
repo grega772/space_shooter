@@ -43,6 +43,9 @@ public class Player : MonoBehaviour {
     protected bool leftThrustersFiring;
     protected bool rightThrustersFiring;
     protected bool dodging = false;
+    protected bool finished = false;
+    private bool finishCountdownStarted = false;
+    private DateTime countDown;
 
 	// Use this for initialization
 	void Start () {
@@ -63,7 +66,8 @@ public class Player : MonoBehaviour {
         doSuperMoves();
         checkHealth();
         checkColorChanged();
-        updateThrusters();	
+        updateThrusters();
+        checkIfFinished();
     }
 
     protected void dodge()
@@ -295,6 +299,22 @@ public class Player : MonoBehaviour {
         }
     }
 
+    private void checkIfFinished()
+    {
+        if (Hitler.hitlerIsDead)
+        {
+            if (!finishCountdownStarted)
+            {
+                countDown = DateTime.Now;
+                finishCountdownStarted = true;
+            }
+            else if (DateTime.Now > countDown.AddMilliseconds(8900))
+            {
+                finished = true;
+            }
+        }
+    }
+
     private void calculateCoolDowns()
     {
         if (laserCoolDown)
@@ -316,7 +336,7 @@ public class Player : MonoBehaviour {
 
     private void fireLaser()
     {
-        if (!laserCoolDown && Input.GetKey(KeyCode.Space))
+        if (!laserCoolDown && Input.GetKey(KeyCode.Space) && !Hitler.hitlerIsDead)
         {
             float xVel = 0f;
 
@@ -360,7 +380,7 @@ public class Player : MonoBehaviour {
 
     private void move()
     {
-        if (!dodging)
+        if (!dodging && !finished && !Hitler.hitlerIsDead)
         {
             rightThrustersFiring = false;
             leftThrustersFiring = false;
@@ -404,6 +424,15 @@ public class Player : MonoBehaviour {
                 }
             }
             transform.position = new Vector3(newXPos, newYPos, transform.position.z);
+        }
+        else if (finished)
+        {
+            var newXPos = transform.position.x;
+            var newYPos = transform.position.y;
+            forwardThrustersFiring = true;
+            newYPos = transform.position.y + 0.02f;
+            transform.position = new Vector3(newXPos, newYPos, transform.position.z);
+
         }
     }
 

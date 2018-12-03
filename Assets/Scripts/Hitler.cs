@@ -7,7 +7,12 @@ public class Hitler : Enemy {
 
     [SerializeField] GameObject scout;
     [SerializeField] AudioClip[] laserEyeSounds;
-    private bool hitlerIsDead = false;
+    [SerializeField] AudioClip charge;
+    [SerializeField] AudioClip neine;
+    [SerializeField] AudioClip laserAttack;
+    private GameObject chin;
+    private AudioClip currentHitlerSound;
+    public static bool hitlerIsDead = false;
     private SpaceWars spaceWars;
     private int hitlerExplosionDelayMilliseconds = 100;
     private DateTime lastColorChange = DateTime.Now;
@@ -25,7 +30,9 @@ public class Hitler : Enemy {
     private DateTime lastEyeFlash = DateTime.Now;
     private bool eyesGettingBrighter = true;
     private float eyeChangeSpeed = 0.2f;
-
+    private bool soundFinished = false;
+    private AudioSource hitlerSpeech;
+    private bool startedPlaying = false;
     private int eyeLaserDelayMilliseconds = 5;
     private float eyeLaserRotation = 50f;
     private DateTime lastTimeLaserFired = DateTime.Now;
@@ -37,6 +44,9 @@ public class Hitler : Enemy {
     private int scoutSummonDelay = 1000;
     private int numScoutWaves = 3;
     private int numScountsPerWave = 5;
+    private bool currentlySpeaking = false;
+    private bool chinInPosition = false;
+    
 
     public bool movingTowardCenter = true;
 
@@ -50,6 +60,8 @@ public class Hitler : Enemy {
 
     void Start()
     {
+        chin = GameObject.FindGameObjectWithTag("hitler_chin");
+        hitlerSpeech = chin.GetComponent<AudioSource>();
         spaceWars = GameObject.FindGameObjectWithTag("space_wars").GetComponent<SpaceWars>();
         speed = Constants.HITLER_SPEED;
         health = Constants.HITLER_HEALTH;
@@ -79,7 +91,79 @@ public class Hitler : Enemy {
         onHitlerDeathFunctions();
         performBossMoves();
         manageAttacks();
+        checkIfSpeaking();
     }
+
+    private void checkIfSpeaking()
+    {
+        if (currentlySpeaking)
+        {
+            if (!chinInPosition)
+            {
+                startedPlaying = false;
+                openMouth();
+            }
+            else if(!soundFinished)
+            {
+                hitlerSpeak();
+            }
+            else
+            {
+                closeMouth();
+            }
+        }
+    }
+
+    private void openMouth()
+    {
+        //head.y - chin.y < 0.8 - it's finished
+
+        var chinPos = chin.transform.position;
+
+        var newChinPos = new Vector3(chinPos.x,chinPos.y - 0.02f,chinPos.z);
+
+        chin.transform.position = newChinPos;
+        
+        if (Math.Abs(gameObject.transform.position.y - chinPos.y)  > 0.8)
+        {
+            chinInPosition = true;
+        }
+        
+        
+    }
+
+    private void closeMouth()
+    {
+        var chinPos = chin.transform.position;
+
+        var newChinPos = new Vector3(chinPos.x, chinPos.y + 0.02f, chinPos.z);
+
+        chin.transform.position = newChinPos;
+
+        if (Math.Abs(gameObject.transform.position.y - chinPos.y) < 0.1)
+        {
+            currentlySpeaking = false;
+            chinInPosition = false;
+            soundFinished = false;
+        }
+    }
+
+    private void hitlerSpeak()
+    {
+        if (!hitlerSpeech.isPlaying && startedPlaying)
+        {
+            soundFinished = true;
+        }
+
+        if (!hitlerSpeech.isPlaying && !soundFinished)
+        {
+            hitlerSpeech.PlayOneShot(currentHitlerSound);
+            startedPlaying = true;
+        }
+
+    }
+
+
 
     private void onHitlerDeathFunctions()
     {
@@ -87,7 +171,29 @@ public class Hitler : Enemy {
         {
             tryToCreateExplosion();
             tryToChangeSpriteColor();
+            if (!currentlySpeaking)
+            {
+                sayNeine();
+            }
         }
+    }
+
+    private void sayNeine()
+    {
+        currentlySpeaking = true;
+        currentHitlerSound = neine;
+    }
+
+    private void sayFire()
+    {
+        currentlySpeaking = true;
+        currentHitlerSound = laserAttack;
+    }
+
+    private void sayCharge()
+    {
+        currentlySpeaking = true;
+        currentHitlerSound = charge;
     }
 
     private void performBossMovement()
@@ -233,6 +339,10 @@ public class Hitler : Enemy {
         if (DateTime.Now < lastBossAttack)
         {
             doEyeFlash();
+            if (!currentlySpeaking)
+            {
+                sayFire();
+            }
         }
         else if(DateTime.Now < lastBossAttack.AddMilliseconds(eyeLaserAttackDurationMilliseconds))
         {
@@ -251,6 +361,10 @@ public class Hitler : Enemy {
         if (DateTime.Now < lastBossAttack)
         {
             doEyeFlash();
+            if (!currentlySpeaking)
+            {
+                sayCharge();
+            }
         }
         else if(DateTime.Now < lastBossAttack.AddMilliseconds(eyeLaserAttackDurationMilliseconds))
         {
@@ -375,7 +489,7 @@ public class Hitler : Enemy {
 
     public void setHitlerIsDead(bool boolean)
     {
-        this.hitlerIsDead = boolean;
+        hitlerIsDead = boolean;
     }
 
 
